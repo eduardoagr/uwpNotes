@@ -1,0 +1,149 @@
+﻿<Page x:Name="Main"
+      x:Class="uwpEvernote.View.NotesPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:local="using:uwpEvernote.View"
+      xmlns:vm="using:uwpEvernote.ViewModel"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      mc:Ignorable="d"
+      Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Page.Resources>
+        <vm:NotesVM x:Key="vm" />
+        <SolidColorBrush x:Key="enabled"
+                         Color="#0078D4" />
+        <SolidColorBrush x:Key="disabled"
+                         Color="Transparent" />
+    </Page.Resources>
+
+    <RelativePanel x:Name="Container"
+                   DataContext="{StaticResource vm}"
+                   Background="{ThemeResource SystemChromeLowColor}"
+                   Loaded="Container_Loaded">
+        <MenuBar x:Name="menuBar">
+            <MenuBarItem Title="File">
+                <MenuFlyoutItem Text="New notebook"
+                                Command="{Binding NewNotebookCommand}">
+                    <MenuFlyoutItem.Icon>
+                        <FontIcon Glyph="&#xE82D;" />
+                    </MenuFlyoutItem.Icon>
+                </MenuFlyoutItem>
+                <MenuFlyoutItem Text="New Note"
+                                Command="{Binding NewNoteCommand}"
+                                CommandParameter="{Binding SelectedNotebook}">
+                    <MenuFlyoutItem.Icon>
+                        <FontIcon Glyph="&#xE70B;" />
+                    </MenuFlyoutItem.Icon>
+                </MenuFlyoutItem>
+                <MenuFlyoutSeparator />
+                <MenuFlyoutItem Text="Exit"
+                                Command="{Binding ExitCommand}">
+                    <MenuFlyoutItem.Icon>
+                        <FontIcon Glyph="&#xE106;" />
+                    </MenuFlyoutItem.Icon>
+                </MenuFlyoutItem>
+            </MenuBarItem>
+
+        </MenuBar>
+        <ListView x:Name="Notebook"
+                  RelativePanel.Below="menuBar"
+                  Width="140"
+                  SelectedItem="{Binding SelectedNotebook, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                  ItemsSource="{Binding NoteBooks}"
+                  RelativePanel.AlignBottomWithPanel="True">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Name}" />
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+        <ListView x:Name="Notes"
+                  Width="140"
+                  ItemsSource="{Binding Notes}"
+                  RelativePanel.Below="menuBar"
+                  RelativePanel.RightOf="Notebook"
+                  RelativePanel.AlignBottomWithPanel="True">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Title}" />
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+        <CommandBar x:Name="commandBar"
+                    RelativePanel.Below="menuBar"
+                    RelativePanel.RightOf="Notes"
+                    RelativePanel.AlignRightWithPanel="True"
+                    OverflowButtonVisibility="Collapsed"
+                    VerticalAlignment="Center"
+                    Margin="0,10,20,10"
+                    Background="{ThemeResource  SystemChromeLowColor}">
+            <CommandBar.Content>
+                <StackPanel Orientation="Horizontal">
+                    <AppBarButton x:Name="textToSpeech"
+                                  Icon="Microphone"
+                                  Click="Actions_Click"
+                                  Tag="0"
+                                  ToolTipService.ToolTip="Text to speech" />
+                    <AppBarButton x:Name="FormatBoltText"
+                                  ToolTipService.ToolTip="Bold"
+                                  Icon="Bold"
+                                  Tag="1"
+                                  Click="Actions_Click" />
+                    <AppBarButton x:Name="formatItalicText"
+                                  ToolTipService.ToolTip="Italic"
+                                  Icon="Italic"
+                                  Tag="2"
+                                  Click="Actions_Click" />
+                    <AppBarButton x:Name="formatUnderlineText"
+                                  ToolTipService.ToolTip="Underline"
+                                  Icon="Underline"
+                                  Tag="3"
+                                  Click="Actions_Click" />
+                    <ComboBox IsEditable="True"
+                              Tag="1"
+                              x:Name="fontBox"
+                              SelectionChanged="ComboChanged"
+                              Width="150" />
+                    <ComboBox x:Name="fontSizeBox"
+                              Tag="2"
+                              SelectionChanged="ComboChanged"
+                              IsEditable="True"
+                              Margin="10,0,0,0"
+                               />
+                </StackPanel>
+
+            </CommandBar.Content>
+
+        </CommandBar>
+        <RichEditBox x:Name="richEbitBox"
+                     TextChanged="Cotent_TextChanged"
+                     RelativePanel.RightOf="Notes"
+                     RelativePanel.Below="commandBar"
+                     RelativePanel.AlignRightWithPanel="True"
+                     RelativePanel.AlignBottomWith="Notebook"
+                     Margin="0,0,10,40" />
+        <CommandBar Background="{ThemeResource  SystemChromeLowColor}"
+                    RelativePanel.RightOf="Notes"
+                    RelativePanel.AlignBottomWith="richEbitBox"
+                    RelativePanel.AlignRightWithPanel="True"
+                    Margin="0,0,10,0"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Center">
+            <CommandBar.Content>
+                <StackPanel Orientation="Horizontal"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Margin="0,10,0,0">
+                    <TextBlock Text="Count"
+                               VerticalAlignment="Center"
+                               HorizontalAlignment="Center" />
+                    <TextBlock Text="|"
+                               Margin="10,0,0,0" />
+                    <TextBlock x:Name="charactersCount"
+                               Margin="10,0,0,0" />
+                </StackPanel>
+            </CommandBar.Content>
+        </CommandBar>
+    </RelativePanel>
+</Page>
