@@ -2,6 +2,18 @@
     x:Class="uwpEvernote.App"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:uwpEvernote">
+    xmlns:local="using:uwpEvernote"
+             xmlns:media="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
 
+    <Application.Resources>
+        <ResourceDictionary>
+            <media:AcrylicBrush x:Key="CustomAcrylicInAppLuminosity"
+                                BackgroundSource="Backdrop"
+                                TintOpacity="0.549999987706542"
+                                TintLuminosityOpacity="0.369999991729856"
+                                TintColor="SkyBlue"
+                                FallbackColor="SkyBlue" />
+        </ResourceDictionary>
+    </Application.Resources>
+    
 </Application>

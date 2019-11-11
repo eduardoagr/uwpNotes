@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Windows.Input;
 
-namespace uwpEvernote.ViewModel.Commands {
+using uwpEvernote.ViewModel;
+
+namespace uwpEvernote {
     public class NewNotebookCommand: ICommand {
 
         public NotesVM VM { get; set; }

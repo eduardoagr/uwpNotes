@@ -3,7 +3,7 @@ using System.Windows.Input;
 
 using uwpEvernote.ViewModel;
 
-namespace uwpEvernote.View.Commands {
+namespace uwpEvernote {
     public class RegisterCommand: ICommand {
 
         public LoginVM VMM { get; set; }

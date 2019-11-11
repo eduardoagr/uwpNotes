@@ -3,7 +3,7 @@ using System.Windows.Input;
 
 using uwpEvernote.ViewModel;
 
-namespace uwpEvernote.View.Commands {
+namespace uwpEvernote {
     public class LoginCaommand: ICommand {
 
         public LoginVM VM { get; set; }

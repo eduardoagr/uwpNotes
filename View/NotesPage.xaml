@@ -10,7 +10,7 @@
       Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Page.Resources>
-        <vm:NotesVM x:Key="vm" />
+        <vm:NotesVM x:Key="VM" />
         <SolidColorBrush x:Key="enabled"
                          Color="#0078D4" />
         <SolidColorBrush x:Key="disabled"
@@ -18,9 +18,11 @@
     </Page.Resources>
 
     <RelativePanel x:Name="Container"
-                   DataContext="{StaticResource vm}"
-                   Background="{ThemeResource SystemChromeLowColor}"
-                   Loaded="Container_Loaded">
+                   DataContext="{StaticResource VM}"
+                   >
+        <RelativePanel.Background>
+            <SolidColorBrush Color="{ThemeResource SystemRevealListMediumColor}" />
+        </RelativePanel.Background>
         <MenuBar x:Name="menuBar">
             <MenuBarItem Title="File">
                 <MenuFlyoutItem Text="New notebook"
@@ -77,7 +79,7 @@
                     OverflowButtonVisibility="Collapsed"
                     VerticalAlignment="Center"
                     Margin="0,10,20,10"
-                    Background="{ThemeResource  SystemChromeLowColor}">
+                    Background="{ThemeResource ButtonBackgroundThemeBrush}">
             <CommandBar.Content>
                 <StackPanel Orientation="Horizontal">
                     <AppBarButton x:Name="textToSpeech"
@@ -100,30 +102,47 @@
                                   Icon="Underline"
                                   Tag="3"
                                   Click="Actions_Click" />
+                    <AppBarSeparator />
                     <ComboBox IsEditable="True"
                               Tag="1"
+                              Loaded="fontBox_Loaded"
                               x:Name="fontBox"
                               SelectionChanged="ComboChanged"
-                              Width="150" />
+                              Width="150"
+                              TextSubmitted="fontBox_TextSubmitted"
+                              />
                     <ComboBox x:Name="fontSizeBox"
                               Tag="2"
+                              TextSubmitted="fontBox_TextSubmitted"
                               SelectionChanged="ComboChanged"
                               IsEditable="True"
-                              Margin="10,0,0,0"
-                               />
+                              Margin="10,0,0,0" />
+                    <AppBarSeparator />
+                    <AppBarButton x:Name="formatDraw"
+                                  Content="Draw"
+                                  Tag="4"
+                                  Click="Actions_Click" />
                 </StackPanel>
 
             </CommandBar.Content>
 
         </CommandBar>
+        <InkCanvas x:Name="Ink_cnvas"
+                   Visibility="Collapsed"
+                   RelativePanel.RightOf="Notes"
+                   RelativePanel.Below="commandBar"
+                   RelativePanel.AlignRightWithPanel="True"
+                   RelativePanel.AlignBottomWith="Notebook"
+                   Margin="0,0,10,40" />
         <RichEditBox x:Name="richEbitBox"
+                     IsHandwritingViewEnabled="False"
                      TextChanged="Cotent_TextChanged"
                      RelativePanel.RightOf="Notes"
                      RelativePanel.Below="commandBar"
                      RelativePanel.AlignRightWithPanel="True"
                      RelativePanel.AlignBottomWith="Notebook"
                      Margin="0,0,10,40" />
-        <CommandBar Background="{ThemeResource  SystemChromeLowColor}"
+        <CommandBar Background="{x:Null}"
                     RelativePanel.RightOf="Notes"
                     RelativePanel.AlignBottomWith="richEbitBox"
                     RelativePanel.AlignRightWithPanel="True"
@@ -131,18 +150,7 @@
                     HorizontalAlignment="Left"
                     VerticalAlignment="Center">
             <CommandBar.Content>
-                <StackPanel Orientation="Horizontal"
-                            HorizontalAlignment="Center"
-                            VerticalAlignment="Center"
-                            Margin="0,10,0,0">
-                    <TextBlock Text="Count"
-                               VerticalAlignment="Center"
-                               HorizontalAlignment="Center" />
-                    <TextBlock Text="|"
-                               Margin="10,0,0,0" />
-                    <TextBlock x:Name="charactersCount"
-                               Margin="10,0,0,0" />
-                </StackPanel>
+                <TextBlock x:Name="charactersCount"/>
             </CommandBar.Content>
         </CommandBar>
     </RelativePanel>

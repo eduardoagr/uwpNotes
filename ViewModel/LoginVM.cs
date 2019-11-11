@@ -1,6 +1,4 @@
 ﻿using uwpEvernote.Model;
-using uwpEvernote.View.Commands;
-using uwpEvernote.ViewModel.Commands;
 
 namespace uwpEvernote.ViewModel {
     public class LoginVM {

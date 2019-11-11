@@ -2,13 +2,11 @@
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Data.SqlClient;
 
 using uwpEvernote.Model;
-using uwpEvernote.ViewModel.Commands;
 
 namespace uwpEvernote.ViewModel {
-    public class NotesVM : INotifyPropertyChanged {
+    public class NotesVM: INotifyPropertyChanged {
 
         public ObservableCollection<NoteBook> NoteBooks { get; set; }
 
@@ -85,7 +83,7 @@ namespace uwpEvernote.ViewModel {
                     Notes.Clear();
                     foreach (var item in notes) {
                         Notes.Add(item);
-                    } 
+                    }
                 }
             }
         }
