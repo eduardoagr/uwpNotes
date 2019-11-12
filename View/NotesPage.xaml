@@ -18,8 +18,7 @@
     </Page.Resources>
 
     <RelativePanel x:Name="Container"
-                   DataContext="{StaticResource VM}"
-                   >
+                   DataContext="{StaticResource VM}">
         <RelativePanel.Background>
             <SolidColorBrush Color="{ThemeResource SystemRevealListMediumColor}" />
         </RelativePanel.Background>
@@ -87,6 +86,11 @@
                                   Click="Actions_Click"
                                   Tag="0"
                                   ToolTipService.ToolTip="Text to speech" />
+                    <AppBarButton x:Name="playBtn"
+                                  Icon="Play"
+                                  Click="Actions_Click"
+                                  Tag="5"
+                                  ToolTipService.ToolTip="Read" />
                     <AppBarButton x:Name="FormatBoltText"
                                   ToolTipService.ToolTip="Bold"
                                   Icon="Bold"

@@ -1,11 +1,13 @@
 ﻿using Microsoft.Graphics.Canvas.Text;
-
 using System;
 using System.Collections;
-
+using System.Diagnostics;
+using System.Linq;
 using Windows.Media.SpeechRecognition;
-using Windows.UI.Popups;
+using Windows.Media.SpeechSynthesis;
+using Windows.UI.Core;
 using Windows.UI.Text;
+using Windows.UI.WebUI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
@@ -18,8 +20,10 @@ namespace uwpEvernote.View {
     /// </summary>
     public sealed partial class NotesPage: Page {
 
-        const string on = "enabled";
-        const string off = "disabled";
+        private const string ON = "enabled";
+        private const string OFF = "disabled";
+        private SpeechRecognizer speechRecognizer;
+        private CoreDispatcher dispatcher;
 
         public NotesPage() {
             this.InitializeComponent();
@@ -40,6 +44,8 @@ namespace uwpEvernote.View {
 
         private async void Actions_Click(object sender, RoutedEventArgs e) {
 
+            richEbitBox.Document.Selection.SetRange(0, richEbitBox.Document.Selection.EndPosition);
+
             var id = sender as Button;
 
             richEbitBox.Focus(FocusState.Pointer);
@@ -47,68 +53,103 @@ namespace uwpEvernote.View {
             switch (id.Tag) {
 
                 case "0":
-                    using (SpeechRecognizer recognizer = new SpeechRecognizer()) {
-                        await recognizer.CompileConstraintsAsync();
-                        recognizer.Timeouts.InitialSilenceTimeout = TimeSpan.FromHours(1);
-                        recognizer.Timeouts.EndSilenceTimeout = TimeSpan.FromHours(1);
-
-                        recognizer.UIOptions.AudiblePrompt = "Say whatever you want";
-                        recognizer.UIOptions.ExampleText = "hello world";
-                        recognizer.UIOptions.ShowConfirmation = true;
-
-                        var result = await recognizer.RecognizeWithUIAsync();
-                        var dialog = new MessageDialog(result.Text, "Text");
-
-                        richEbitBox.Document.GetText(TextGetOptions.AdjustCrlf, out string value);
-                        richEbitBox.Document.SetText(TextSetOptions.None, value += result.Text);
-                    }
+                    dispatcher = CoreWindow.GetForCurrentThread().Dispatcher;
+                    speechRecognizer = new SpeechRecognizer();
+                    await speechRecognizer.CompileConstraintsAsync();
+                    speechRecognizer.ContinuousRecognitionSession.ResultGenerated += ContinuousRecognitionSession_ResultGenerated;
+                    speechRecognizer.ContinuousRecognitionSession.AutoStopSilenceTimeout = TimeSpan.FromDays(1);
+                    speechRecognizer.ContinuousRecognitionSession.Completed += ContinuousRecognitionSession_Completed;
+                    await speechRecognizer.ContinuousRecognitionSession.StartAsync();
+                    textToSpeech.Background = (SolidColorBrush)Resources[ON];
                     break;
                 case "1":
                     if (richEbitBox.Document.Selection.CharacterFormat.Bold == FormatEffect.On) {
                         richEbitBox.Document.Selection.CharacterFormat.Bold = FormatEffect.Off;
-                        FormatBoltText.Background = (SolidColorBrush)Resources[off];
+                        FormatBoltText.Background = (SolidColorBrush)Resources[OFF];
                     } else {
                         richEbitBox.Document.Selection.CharacterFormat.Bold = FormatEffect.On;
-                        FormatBoltText.Background = (SolidColorBrush)Resources[on];
+                        FormatBoltText.Background = (SolidColorBrush)Resources[ON];
                     }
                     break;
                 case "2":
                     if (richEbitBox.Document.Selection.CharacterFormat.Italic == FormatEffect.On) {
                         richEbitBox.Document.Selection.CharacterFormat.Italic = FormatEffect.Off;
-                        formatItalicText.Background = (SolidColorBrush)Resources[off];
+                        formatItalicText.Background = (SolidColorBrush)Resources[OFF];
                     } else {
                         richEbitBox.Document.Selection.CharacterFormat.Italic = FormatEffect.On;
-                        formatItalicText.Background = (SolidColorBrush)Resources[on];
+                        formatItalicText.Background = (SolidColorBrush)Resources[ON];
                     }
                     break;
                 case "3":
                     if (richEbitBox.Document.Selection.CharacterFormat.Underline == UnderlineType.Single) {
                         richEbitBox.Document.Selection.CharacterFormat.Underline = UnderlineType.None;
-                        formatUnderlineText.Background = (SolidColorBrush)Resources[off];
+                        formatUnderlineText.Background = (SolidColorBrush)Resources[OFF];
                     } else {
                         richEbitBox.Document.Selection.CharacterFormat.Underline = UnderlineType.Single;
-                        formatUnderlineText.Background = (SolidColorBrush)Resources[on];
+                        formatUnderlineText.Background = (SolidColorBrush)Resources[ON];
                     }
                     break;
                 case "4":
                     if (Ink_cnvas.Visibility == Visibility.Collapsed) {
-                        formatDraw.Background = (SolidColorBrush)Resources[on];
+                        formatDraw.Background = (SolidColorBrush)Resources[ON];
                         Ink_cnvas.Visibility = Visibility.Visible;
                         richEbitBox.Visibility = Visibility.Collapsed;
                     } else if (Ink_cnvas.Visibility == Visibility.Visible) {
                         Ink_cnvas.Visibility = Visibility.Collapsed;
-                        formatDraw.Background = (SolidColorBrush)Resources[off];
+                        formatDraw.Background = (SolidColorBrush)Resources[OFF];
                         richEbitBox.Visibility = Visibility.Visible;
                     }
+                    break;
+                case "5":
+                    richEbitBox.Document.GetText(TextGetOptions.AdjustCrlf, out string value);
+                    speak(value);
                     break;
                 default:
                     break;
             }
         }
 
+        private async void speak(string value) {
+
+            MediaElement mediaElement = new MediaElement();
+
+            // The object for controlling the speech synthesis engine (voice).
+            var synth = new SpeechSynthesizer();
+
+            VoiceInformation voiceInfo = (from voice in SpeechSynthesizer.AllVoices
+                                          where voice.Gender == VoiceGender.Female
+                                          select voice).FirstOrDefault();
+
+            synth.Voice = voiceInfo;
+
+            // Generate the audio stream from plain text.
+            SpeechSynthesisStream stream = await synth.SynthesizeTextToStreamAsync(value);
+
+            // Send the stream to the media object.
+            mediaElement.SetSource(stream, stream.ContentType);
+            mediaElement.Play();
+        }
+
+        private async void ContinuousRecognitionSession_Completed(SpeechContinuousRecognitionSession sender, SpeechContinuousRecognitionCompletedEventArgs args) {
+
+            await speechRecognizer.ContinuousRecognitionSession.StartAsync();
+        }
+
+        private async void ContinuousRecognitionSession_ResultGenerated(SpeechContinuousRecognitionSession sender, SpeechContinuousRecognitionResultGeneratedEventArgs args) {
+
+            await dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () => {
+
+                richEbitBox.Document.GetText(TextGetOptions.AdjustCrlf, out string value);
+                richEbitBox.Document.SetText(TextSetOptions.None, value + args.Result.Text);
+                textToSpeech.Background = (SolidColorBrush)Resources[OFF]; // This will indicate that my button is off
+                await speechRecognizer.ContinuousRecognitionSession.StopAsync();
+            });
+        }
+
         private void ComboChanged(object sender, SelectionChangedEventArgs e) {
 
-            richEbitBox.Focus(FocusState.Keyboard);
+            richEbitBox.Focus(FocusState.Pointer);
+
             var id = sender as ComboBox;
             switch (id.Tag) {
 
