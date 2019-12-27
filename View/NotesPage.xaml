@@ -109,6 +109,7 @@
                     <AppBarSeparator />
                     <ComboBox IsEditable="True"
                               Tag="1"
+                              ItemsSource="{Binding Fonts}"
                               Loaded="fontBox_Loaded"
                               x:Name="fontBox"
                               SelectionChanged="ComboChanged"
@@ -116,22 +117,26 @@
                               TextSubmitted="fontBox_TextSubmitted"
                               />
                     <ComboBox x:Name="fontSizeBox"
+                              ItemsSource="{Binding FontsSize}"
                               Tag="2"
                               TextSubmitted="fontBox_TextSubmitted"
                               SelectionChanged="ComboChanged"
                               IsEditable="True"
                               Margin="10,0,0,0" />
-                    <AppBarSeparator />
-                    <AppBarButton x:Name="formatDraw"
-                                  Content="Draw"
-                                  Tag="4"
-                                  Click="Actions_Click" />
+
                 </StackPanel>
 
             </CommandBar.Content>
 
         </CommandBar>
-        <InkCanvas x:Name="Ink_cnvas"
+        <Canvas x:Name="recognitionCanvas"
+                Visibility="Collapsed"
+                RelativePanel.RightOf="Notes"
+                RelativePanel.Below="commandBar"
+                RelativePanel.AlignRightWithPanel="True"
+                RelativePanel.AlignBottomWith="Notebook"
+                Margin="0,0,10,40" />
+        <InkCanvas x:Name="drawingCanvas"
                    Visibility="Collapsed"
                    RelativePanel.RightOf="Notes"
                    RelativePanel.Below="commandBar"
@@ -146,8 +151,7 @@
                      RelativePanel.AlignRightWithPanel="True"
                      RelativePanel.AlignBottomWith="Notebook"
                      Margin="0,0,10,40" />
-        <CommandBar Background="{x:Null}"
-                    RelativePanel.RightOf="Notes"
+        <CommandBar RelativePanel.RightOf="Notes"
                     RelativePanel.AlignBottomWith="richEbitBox"
                     RelativePanel.AlignRightWithPanel="True"
                     Margin="0,0,10,0"

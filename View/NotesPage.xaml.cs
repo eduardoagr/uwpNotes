@@ -1,39 +1,30 @@
-﻿using Microsoft.Graphics.Canvas.Text;
-using System;
-using System.Collections;
+﻿using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
 using Windows.Media.SpeechRecognition;
 using Windows.Media.SpeechSynthesis;
 using Windows.UI.Core;
 using Windows.UI.Text;
-using Windows.UI.WebUI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 
-// The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=234238
-
 namespace uwpEvernote.View {
-    /// <summary>
-    /// An empty page that can be used on its own or navigated to within a Frame.
-    /// </summary>
+
     public sealed partial class NotesPage: Page {
 
         private const string ON = "enabled";
         private const string OFF = "disabled";
-        private SpeechRecognizer speechRecognizer;
+        private SpeechRecognizer speechRecognizer = new SpeechRecognizer(SpeechRecognizer.SystemSpeechLanguage);
         private CoreDispatcher dispatcher;
+        private StringBuilder dictateBuilder = new StringBuilder();
+        bool isListening = false;
+
 
         public NotesPage() {
-            this.InitializeComponent();
-            var fonts = CanvasTextFormat.GetSystemFontFamilies();
-            fontBox.ItemsSource = fonts;
-            var arrList = new ArrayList();
-            for (int i = 0; i < 73; ++i) {
-                arrList.Add(i);
-            }
-            fontSizeBox.ItemsSource = arrList;
+            InitializeComponent();
+            dispatcher = CoreWindow.GetForCurrentThread().Dispatcher;
         }
 
         private void Cotent_TextChanged(object sender, RoutedEventArgs e) {
@@ -53,14 +44,23 @@ namespace uwpEvernote.View {
             switch (id.Tag) {
 
                 case "0":
-                    dispatcher = CoreWindow.GetForCurrentThread().Dispatcher;
-                    speechRecognizer = new SpeechRecognizer();
-                    await speechRecognizer.CompileConstraintsAsync();
-                    speechRecognizer.ContinuousRecognitionSession.ResultGenerated += ContinuousRecognitionSession_ResultGenerated;
-                    speechRecognizer.ContinuousRecognitionSession.AutoStopSilenceTimeout = TimeSpan.FromDays(1);
+                    var dictationConstraint = new SpeechRecognitionTopicConstraint(SpeechRecognitionScenario.Dictation, "dictation");
+                    speechRecognizer.Constraints.Add(dictationConstraint);
+                    SpeechRecognitionCompilationResult result = await speechRecognizer.CompileConstraintsAsync();
                     speechRecognizer.ContinuousRecognitionSession.Completed += ContinuousRecognitionSession_Completed;
-                    await speechRecognizer.ContinuousRecognitionSession.StartAsync();
-                    textToSpeech.Background = (SolidColorBrush)Resources[ON];
+                    speechRecognizer.ContinuousRecognitionSession.ResultGenerated += ContinuousRecognitionSession_ResultGenerated;
+                    speechRecognizer.HypothesisGenerated += SpeechRecognizer_HypothesisGenerated;
+                    isListening = true;
+                    if (isListening) {
+                        await speechRecognizer.ContinuousRecognitionSession.StartAsync();
+                        textToSpeech.Background = (SolidColorBrush)Resources[ON];
+                        isListening = false;
+                    } else if (isListening == false) {
+                        await speechRecognizer.ContinuousRecognitionSession.StopAsync();
+                        textToSpeech.Background = (SolidColorBrush)Resources[OFF];
+                    }
+
+
                     break;
                 case "1":
                     if (richEbitBox.Document.Selection.CharacterFormat.Bold == FormatEffect.On) {
@@ -89,17 +89,6 @@ namespace uwpEvernote.View {
                         formatUnderlineText.Background = (SolidColorBrush)Resources[ON];
                     }
                     break;
-                case "4":
-                    if (Ink_cnvas.Visibility == Visibility.Collapsed) {
-                        formatDraw.Background = (SolidColorBrush)Resources[ON];
-                        Ink_cnvas.Visibility = Visibility.Visible;
-                        richEbitBox.Visibility = Visibility.Collapsed;
-                    } else if (Ink_cnvas.Visibility == Visibility.Visible) {
-                        Ink_cnvas.Visibility = Visibility.Collapsed;
-                        formatDraw.Background = (SolidColorBrush)Resources[OFF];
-                        richEbitBox.Visibility = Visibility.Visible;
-                    }
-                    break;
                 case "5":
                     richEbitBox.Document.GetText(TextGetOptions.AdjustCrlf, out string value);
                     speak(value);
@@ -109,11 +98,41 @@ namespace uwpEvernote.View {
             }
         }
 
+        private async void SpeechRecognizer_HypothesisGenerated(
+            SpeechRecognizer sender,
+            SpeechRecognitionHypothesisGeneratedEventArgs args) {
+
+            string hypothesis = args.Hypothesis.Text;
+            string textboxContent = dictateBuilder.ToString() + " " + hypothesis + " ...";
+
+            await dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => {
+                richEbitBox.Document.SetText(TextSetOptions.None, textboxContent);
+            });
+        }
+
+        private async void ContinuousRecognitionSession_ResultGenerated(
+            SpeechContinuousRecognitionSession sender,
+            SpeechContinuousRecognitionResultGeneratedEventArgs args) {
+
+            if (args.Result.Confidence == SpeechRecognitionConfidence.Medium ||
+                  args.Result.Confidence == SpeechRecognitionConfidence.High) {
+
+                dictateBuilder.Append(args.Result.Text + " ");
+
+                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => {
+                    richEbitBox.Document.SetText(TextSetOptions.None, dictateBuilder.ToString());
+                });
+            }
+        }
+
+        private void ContinuousRecognitionSession_Completed(
+                SpeechContinuousRecognitionSession sender,
+                SpeechContinuousRecognitionCompletedEventArgs args) {
+        }
         private async void speak(string value) {
 
             MediaElement mediaElement = new MediaElement();
 
-            // The object for controlling the speech synthesis engine (voice).
             var synth = new SpeechSynthesizer();
 
             VoiceInformation voiceInfo = (from voice in SpeechSynthesizer.AllVoices
@@ -128,22 +147,7 @@ namespace uwpEvernote.View {
             // Send the stream to the media object.
             mediaElement.SetSource(stream, stream.ContentType);
             mediaElement.Play();
-        }
 
-        private async void ContinuousRecognitionSession_Completed(SpeechContinuousRecognitionSession sender, SpeechContinuousRecognitionCompletedEventArgs args) {
-
-            await speechRecognizer.ContinuousRecognitionSession.StartAsync();
-        }
-
-        private async void ContinuousRecognitionSession_ResultGenerated(SpeechContinuousRecognitionSession sender, SpeechContinuousRecognitionResultGeneratedEventArgs args) {
-
-            await dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () => {
-
-                richEbitBox.Document.GetText(TextGetOptions.AdjustCrlf, out string value);
-                richEbitBox.Document.SetText(TextSetOptions.None, value + args.Result.Text);
-                textToSpeech.Background = (SolidColorBrush)Resources[OFF]; // This will indicate that my button is off
-                await speechRecognizer.ContinuousRecognitionSession.StopAsync();
-            });
         }
 
         private void ComboChanged(object sender, SelectionChangedEventArgs e) {
@@ -154,7 +158,6 @@ namespace uwpEvernote.View {
             switch (id.Tag) {
 
                 case "1":
-                    //Todo implement new font name
                     string fontName = id.SelectedItem.ToString();
                     richEbitBox.Document.Selection.CharacterFormat.Name = fontName;
                     break;

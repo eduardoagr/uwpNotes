@@ -1,9 +1,11 @@
-﻿using SQLite;
+﻿using Microsoft.Graphics.Canvas.Text;
+using SQLite;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 
 using uwpEvernote.Model;
+using Windows.UI.Xaml.Controls;
 
 namespace uwpEvernote.ViewModel {
     public class NotesVM: INotifyPropertyChanged {
@@ -22,6 +24,8 @@ namespace uwpEvernote.ViewModel {
             }
         }
 
+        public int[] FontsSize { get; set; }
+        public string[] Fonts { get; set; }
         public ObservableCollection<Note> Notes { get; set; }
         public NewNoteCommand NewNoteCommand { get; set; }
         public NewNotebookCommand NewNotebookCommand { get; set; }
@@ -35,7 +39,9 @@ namespace uwpEvernote.ViewModel {
             ExitCommand = new ExitCommand(this);
             NoteBooks = new ObservableCollection<NoteBook>();
             Notes = new ObservableCollection<Note>();
-
+            Fonts = new string [CanvasTextFormat.GetSystemFontFamilies().Length];
+            FontsSize = new int[] {14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,31,31,32,33,34,35,36,37,38,39,40};
+            Fill();
             ReadNotebooks();
         }
 
@@ -88,8 +94,13 @@ namespace uwpEvernote.ViewModel {
             }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public void Fill() {
+            for (int i = 0; i < Fonts.Length; i++) {
+                Fonts[i] = i.ToString();
+            }
+        }
 
+        public event PropertyChangedEventHandler PropertyChanged;
 
         private void OnPropertyChanged(string property) {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property));
