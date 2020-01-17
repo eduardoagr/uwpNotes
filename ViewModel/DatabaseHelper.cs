@@ -1,7 +1,5 @@
 ﻿using SQLite;
-
 using System.IO;
-
 using Windows.Storage;
 
 namespace uwpEvernote.ViewModel {

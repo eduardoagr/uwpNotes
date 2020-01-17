@@ -45,6 +45,18 @@ namespace uwpEvernote.Model {
             }
         }
 
+        private string _username;
+        public string Username {
+            get { return _username; }
+            set {
+                if (value != _username) {
+                    _username = value;
+                    OnPropertyChanged("username");
+                }
+            }
+        }
+
+
 
         private string _email;
         public string Email {

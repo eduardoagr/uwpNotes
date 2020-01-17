@@ -3,14 +3,15 @@
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:local="using:uwpEvernote.View"
-      xmlns:vm="using:uwpEvernote.ViewModel"
+      xmlns:vm="using:uwpEvernote"
+      xmlns:uc="using:uwpEvernote.View.UserControls"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       mc:Ignorable="d"
       Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Page.Resources>
-        <vm:NotesVM x:Key="VM" />
+        <vm:NotesVM x:Key="vm" />
         <SolidColorBrush x:Key="enabled"
                          Color="#0078D4" />
         <SolidColorBrush x:Key="disabled"
@@ -18,10 +19,8 @@
     </Page.Resources>
 
     <RelativePanel x:Name="Container"
-                   DataContext="{StaticResource VM}">
-        <RelativePanel.Background>
-            <SolidColorBrush Color="{ThemeResource SystemRevealListMediumColor}" />
-        </RelativePanel.Background>
+                   DataContext="{StaticResource vm}"
+                   Background="{ThemeResource SystemChromeLowColor}">
         <MenuBar x:Name="menuBar">
             <MenuBarItem Title="File">
                 <MenuFlyoutItem Text="New notebook"
@@ -49,13 +48,14 @@
         </MenuBar>
         <ListView x:Name="Notebook"
                   RelativePanel.Below="menuBar"
+                  Background="MidnightBlue"
                   Width="140"
                   SelectedItem="{Binding SelectedNotebook, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                   ItemsSource="{Binding NoteBooks}"
                   RelativePanel.AlignBottomWithPanel="True">
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <TextBlock Text="{Binding Name}" />
+                    <uc:Notebook DisplayNotebook="{Binding}" />
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
@@ -67,7 +67,7 @@
                   RelativePanel.AlignBottomWithPanel="True">
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <TextBlock Text="{Binding Title}" />
+                    <uc:NoteControl Note="{Binding}" />
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
@@ -78,7 +78,7 @@
                     OverflowButtonVisibility="Collapsed"
                     VerticalAlignment="Center"
                     Margin="0,10,20,10"
-                    Background="{ThemeResource ButtonBackgroundThemeBrush}">
+                    Background="{ThemeResource  SystemChromeLowColor}">
             <CommandBar.Content>
                 <StackPanel Orientation="Horizontal">
                     <AppBarButton x:Name="textToSpeech"
@@ -86,11 +86,6 @@
                                   Click="Actions_Click"
                                   Tag="0"
                                   ToolTipService.ToolTip="Text to speech" />
-                    <AppBarButton x:Name="playBtn"
-                                  Icon="Play"
-                                  Click="Actions_Click"
-                                  Tag="5"
-                                  ToolTipService.ToolTip="Read" />
                     <AppBarButton x:Name="FormatBoltText"
                                   ToolTipService.ToolTip="Bold"
                                   Icon="Bold"
@@ -106,59 +101,52 @@
                                   Icon="Underline"
                                   Tag="3"
                                   Click="Actions_Click" />
-                    <AppBarSeparator />
                     <ComboBox IsEditable="True"
                               Tag="1"
                               ItemsSource="{Binding Fonts}"
-                              Loaded="fontBox_Loaded"
                               x:Name="fontBox"
+                              Loaded="FontBox_Loaded"
                               SelectionChanged="ComboChanged"
-                              Width="150"
-                              TextSubmitted="fontBox_TextSubmitted"
-                              />
+                              Width="150" />
                     <ComboBox x:Name="fontSizeBox"
-                              ItemsSource="{Binding FontsSize}"
                               Tag="2"
-                              TextSubmitted="fontBox_TextSubmitted"
+                              ItemsSource="{Binding FontsSize}"
                               SelectionChanged="ComboChanged"
                               IsEditable="True"
-                              Margin="10,0,0,0" />
-
+                              Margin="10,0,0,0"
+                               />
                 </StackPanel>
 
             </CommandBar.Content>
 
         </CommandBar>
-        <Canvas x:Name="recognitionCanvas"
-                Visibility="Collapsed"
-                RelativePanel.RightOf="Notes"
-                RelativePanel.Below="commandBar"
-                RelativePanel.AlignRightWithPanel="True"
-                RelativePanel.AlignBottomWith="Notebook"
-                Margin="0,0,10,40" />
-        <InkCanvas x:Name="drawingCanvas"
-                   Visibility="Collapsed"
-                   RelativePanel.RightOf="Notes"
-                   RelativePanel.Below="commandBar"
-                   RelativePanel.AlignRightWithPanel="True"
-                   RelativePanel.AlignBottomWith="Notebook"
-                   Margin="0,0,10,40" />
         <RichEditBox x:Name="richEbitBox"
-                     IsHandwritingViewEnabled="False"
                      TextChanged="Cotent_TextChanged"
                      RelativePanel.RightOf="Notes"
                      RelativePanel.Below="commandBar"
                      RelativePanel.AlignRightWithPanel="True"
                      RelativePanel.AlignBottomWith="Notebook"
                      Margin="0,0,10,40" />
-        <CommandBar RelativePanel.RightOf="Notes"
+        <CommandBar Background="{ThemeResource  SystemChromeLowColor}"
+                    RelativePanel.RightOf="Notes"
                     RelativePanel.AlignBottomWith="richEbitBox"
                     RelativePanel.AlignRightWithPanel="True"
                     Margin="0,0,10,0"
                     HorizontalAlignment="Left"
                     VerticalAlignment="Center">
             <CommandBar.Content>
-                <TextBlock x:Name="charactersCount"/>
+                <StackPanel Orientation="Horizontal"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Margin="0,10,0,0">
+                    <TextBlock Text="Count"
+                               VerticalAlignment="Center"
+                               HorizontalAlignment="Center" />
+                    <TextBlock Text="|"
+                               Margin="10,0,0,0" />
+                    <TextBlock x:Name="charactersCount"
+                               Margin="10,0,0,0" />
+                </StackPanel>
             </CommandBar.Content>
         </CommandBar>
     </RelativePanel>

@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Windows.Input;
 
-using uwpEvernote.ViewModel;
-
 using Windows.ApplicationModel.Core;
 
-namespace uwpEvernote {
+namespace uwpEvernote.ViewModel.Commands {
     public class ExitCommand: ICommand {
 
         public NotesVM VM { get; set; }

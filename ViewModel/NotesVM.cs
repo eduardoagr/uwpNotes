@@ -1,13 +1,16 @@
 ﻿using Microsoft.Graphics.Canvas.Text;
+
 using SQLite;
+
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 
 using uwpEvernote.Model;
-using Windows.UI.Xaml.Controls;
+using uwpEvernote.ViewModel;
+using uwpEvernote.ViewModel.Commands;
 
-namespace uwpEvernote.ViewModel {
+namespace uwpEvernote {
     public class NotesVM: INotifyPropertyChanged {
 
         public ObservableCollection<NoteBook> NoteBooks { get; set; }
@@ -19,11 +22,10 @@ namespace uwpEvernote.ViewModel {
             set {
                 if (value != _SelectedNotebook) {
                     _SelectedNotebook = value;
-                    //OnPropertyChanged("SelectedNotebook");
+                    ReadNoote();
                 }
             }
         }
-
         public int[] FontsSize { get; set; }
         public string[] Fonts { get; set; }
         public ObservableCollection<Note> Notes { get; set; }
@@ -39,19 +41,21 @@ namespace uwpEvernote.ViewModel {
             ExitCommand = new ExitCommand(this);
             NoteBooks = new ObservableCollection<NoteBook>();
             Notes = new ObservableCollection<Note>();
-            Fonts = new string [CanvasTextFormat.GetSystemFontFamilies().Length];
-            FontsSize = new int[] {14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,31,31,32,33,34,35,36,37,38,39,40};
-            Fill();
+            Fonts = CanvasTextFormat.GetSystemFontFamilies();
+            FontsSize = new int[] { 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 31, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40 };
             ReadNotebooks();
+            ReadNoote();
         }
 
         public void CreateNotebook() {
 
             var newNotebook = new NoteBook() {
-                Name = "New notebook"
+                Name = "New Book"
             };
 
             DatabaseHelper.Insert(newNotebook);
+
+            ReadNotebooks();
         }
 
         public void CreateNote(int id) {
@@ -64,6 +68,8 @@ namespace uwpEvernote.ViewModel {
             };
 
             DatabaseHelper.Insert(newNote);
+
+            ReadNoote();
         }
 
         public void ReadNotebooks() {
@@ -94,13 +100,8 @@ namespace uwpEvernote.ViewModel {
             }
         }
 
-        public void Fill() {
-            for (int i = 0; i < Fonts.Length; i++) {
-                Fonts[i] = i.ToString();
-            }
-        }
-
         public event PropertyChangedEventHandler PropertyChanged;
+
 
         private void OnPropertyChanged(string property) {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property));

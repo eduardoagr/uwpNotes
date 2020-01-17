@@ -1,0 +1,29 @@
+﻿<UserControl
+    x:Class="uwpEvernote.View.UserControls.NoteControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:uwpEvernote.View.UserControls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    d:DesignHeight="150"
+    d:DesignWidth="400">
+
+    <StackPanel Margin="20">
+        <TextBlock x:Name="NoteTitle"
+                   FontSize="15"
+                   FontWeight="Bold"
+                   Text="New Note"/>
+        <TextBlock x:Name="EditedTextBlock"
+                   Text="9 minutes ago"
+                   FontSize="10"
+                   Foreground="DodgerBlue"
+                   Margin="0 5 0 0" />
+        <TextBlock x:Name="ContentTextbox"
+                   Margin="0 10 0 0"
+                   Text="hfhdsnjfhsdj sdijijs dsjos xsdiopxds sxdxmsdk sdxjsmdx dsjxk0psd dwed'wed,p;ew"
+                   TextWrapping="Wrap" 
+                   Foreground="DarkGray"
+                   FontSize="12"/>
+    </StackPanel>
+</UserControl>

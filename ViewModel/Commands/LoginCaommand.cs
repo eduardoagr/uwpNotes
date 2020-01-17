@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Windows.Input;
 
-using uwpEvernote.ViewModel;
+using uwpEvernote.Model;
 
-namespace uwpEvernote {
+namespace uwpEvernote.View.Commands {
     public class LoginCaommand: ICommand {
 
         public LoginVM VM { get; set; }
@@ -16,11 +16,19 @@ namespace uwpEvernote {
 
         public bool CanExecute(object parameter) {
 
+            var user = parameter as User;
+
+            if (string.IsNullOrEmpty(user.Username)) {
+                return false;
+            }
+            if (string.IsNullOrEmpty(user.Password)) {
+                return false;
+            }
             return true;
         }
 
         public void Execute(object parameter) {
-            // TODO: Implement 
+            VM.Login();
         }
     }
 }

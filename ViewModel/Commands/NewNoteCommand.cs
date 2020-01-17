@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Windows.Input;
-
 using uwpEvernote.Model;
-using uwpEvernote.ViewModel;
 
-namespace uwpEvernote {
+namespace uwpEvernote.ViewModel.Commands {
     public class NewNoteCommand: ICommand {
 
         public NotesVM VM { get; set; }
@@ -17,7 +15,7 @@ namespace uwpEvernote {
         }
         public bool CanExecute(object parameter) {
 
-            NoteBook selectedNoteBook = parameter as NoteBook;
+            var selectedNoteBook = parameter as NoteBook;
             if (selectedNoteBook != null) {
                 return true;
             }

@@ -1,14 +1,100 @@
-﻿<Page
-    x:Class="uwpEvernote.View.LoginPage"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:uwpEvernote.View"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+﻿<Page x:Class="uwpEvernote.View.LoginPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:local="using:uwpEvernote.View"
+      xmlns:vm="using:uwpEvernote"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      mc:Ignorable="d"
+      Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Grid>
+    <Page.Resources>
+        <vm:LoginVM x:Key="login" />
+    </Page.Resources>
 
+    <Grid DataContext="{StaticResource login}">
+        <StackPanel x:Name="LoginPanel"
+                    Margin="20, 0"
+                    VerticalAlignment="Center">
+            <TextBox Text="{Binding User.Username}"
+                     PlaceholderText="Userrname"
+                     Margin="0 5 0 0"
+                     FontSize="25"
+                     Foreground="Black"
+                     HorizontalAlignment="Center" />
+            <PasswordBox Password="{Binding User.Password}"
+                         PlaceholderText="Password"
+                         Margin="0 20 0 0"
+                         FontSize="25"
+                         Foreground="Black"
+                         HorizontalAlignment="Center" />
+            <Button Margin="0 20 0 0"
+                    Content="Login"
+                    HorizontalAlignment="Stretch"
+                    Command="{Binding LoginCaommand}"
+                    CommandParameter="{Binding User}"
+                    Width="400" />
+            <Button HorizontalAlignment="Center" 
+                    Margin="0 20 0 20"
+                    x:Name="ActivateRegisterPanel"
+                    Click="ActivateStackPanels_Click"
+                    Tag="1"
+                    Background="{x:Null}">
+                <TextBlock Text="I have an account"
+                           Foreground="#FF859DFA" />
+            </Button>
+        </StackPanel>
+        <StackPanel x:Name="RegisterPanel"
+                    Margin="20, 0"
+                    Visibility="Collapsed"
+                    VerticalAlignment="Center">
+            <TextBox Text="{Binding User.Name}"
+                     PlaceholderText="Firt Name"
+                     Margin="0 5 0 0"
+                     FontSize="25"
+                     Foreground="Black"
+                     HorizontalAlignment="Center" />
+            <TextBox Text="{Binding User.LastName}"
+                     PlaceholderText="Last name"
+                     Margin="0 20 0 0"
+                     FontSize="25"
+                     Foreground="Black"
+                     HorizontalAlignment="Center" />
+            <TextBox Text="{Binding User.Username}"
+                     PlaceholderText="Username"
+                     Margin="0 20 0 0"
+                     FontSize="25"
+                     Foreground="Black"
+                     HorizontalAlignment="Center" />
+            <PasswordBox Password="{Binding User.Password}"
+                         PlaceholderText="Password"
+                         Margin="0 20 0 0"
+                         FontSize="25"
+                         Foreground="Black"
+                         HorizontalAlignment="Center" />
+            <TextBox Text="{Binding User.Email}"
+                     PlaceholderText="Email Address"
+                     Margin="0 20 0 0"
+                     FontSize="25"
+                     Foreground="Black"
+                     HorizontalAlignment="Center" />
+            <Button Margin="0 20 0 0"
+                    Content="Register"
+                    HorizontalAlignment="Stretch"
+                    Command="{Binding RegisterCommand}"
+                    CommandParameter="{Binding User}"
+                    Width="400" />
+            <Button HorizontalAlignment="Center"
+                    Margin="0 20 0 20"
+                    Click="ActivateStackPanels_Click"
+                    x:Name="activateLoginStackPanel"
+                    Tag="2"
+                    Background="{x:Null}">
+                <TextBlock Text="I have an account"
+                           HorizontalAlignment="Center"
+                           Foreground="#FF859DFA" 
+                           />
+            </Button>
+        </StackPanel>
     </Grid>
 </Page>
